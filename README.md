@@ -172,6 +172,25 @@ sft Llama-2-7b-Chat
 bash scripts/train_llama2.sh
 ```
 
+
+
+# 📬 Contact
+For questions, feedback, or collaboration opportunities, feel free to reach out:
+- Zhicheng Yang: yangzhch6@gmail.com
+
+# Citation
+If you find our model or code useful, please kindly cite our paper:
+```bib
+@inproceedings{
+yang2025optibench,
+title={OptiBench Meets ReSocratic: Measure and Improve {LLM}s for Optimization Modeling},
+author={Zhicheng Yang and Yiwei Wang and Yinya Huang and Zhijiang Guo and Wei Shi and Xiongwei Han and Liang Feng and Linqi Song and Xiaodan Liang and Jing Tang},
+booktitle={The Thirteenth International Conference on Learning Representations},
+year={2025},
+url={https://openreview.net/forum?id=fsDZwS49uY}
+}
+```
+
 sft Llama-3-8b-Instruct
 ```
 bash scripts/train_llama3.sh
