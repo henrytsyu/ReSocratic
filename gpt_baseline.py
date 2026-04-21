@@ -15,7 +15,9 @@ def run_code(code, timelimit=20):
     start_time = time.time()
     try:
         output = subprocess.check_output(
-            ["python", "-c", exec_code], stderr=subprocess.STDOUT, timeout=timelimit,
+            ["python", "-c", exec_code],
+            stderr=subprocess.STDOUT,
+            timeout=timelimit,
         )
     except subprocess.TimeoutExpired:
         return False, "The code runs over time limit."
@@ -55,14 +57,22 @@ if __name__ == "__main__":
     load_dotenv()
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_name", type=str, default="gpt-5.4-mini")  # deepseek-v2 chat
-
-    parser.add_argument("--data_path", type=str, default="data/optibench_nonlinear.json")
     parser.add_argument(
-        "--output_path", type=str, default="eval_results/{}_fewshot.json",
+        "--model_name", type=str, default="gpt-5.4-mini"
+    )  # deepseek-v2 chat
+
+    parser.add_argument(
+        "--data_path", type=str, default="data/optibench_nonlinear.json"
     )
     parser.add_argument(
-        "--prompt_path", type=str, default="prompt/solve/scip_fewshot.txt",
+        "--output_path",
+        type=str,
+        default="eval_results/{}_fewshot.json",
+    )
+    parser.add_argument(
+        "--prompt_path",
+        type=str,
+        default="prompt/solve/scip_fewshot.txt",
     )
 
     args = parser.parse_args()
@@ -128,7 +138,7 @@ if __name__ == "__main__":
                 {
                     "role": "assistant",
                     "content": "```python\n{}\n```".format(llm_match_response_code)
-                               + "\n\n\n```code output\n{}\n```".format(code_match_output),
+                    + "\n\n\n```code output\n{}\n```".format(code_match_output),
                 },
             )
 

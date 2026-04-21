@@ -53,7 +53,8 @@ def make_chat_request_deepseek(
     if parallel:
         # Determine the number of processes based on the number of available CPU cores
         num_processes = min(
-            multiprocessing.cpu_count(), n,
+            multiprocessing.cpu_count(),
+            n,
         )  # multiprocessing.cpu_count()
 
         # Create a pool of workers
@@ -107,7 +108,13 @@ def make_chat_request_deepseek(
 
 
 def make_chat_request_openai(
-    model_name, dialogue_history, n, max_tokens=4000, stop=None, temperature=0, sleep=1,
+    model_name,
+    dialogue_history,
+    n,
+    max_tokens=4000,
+    stop=None,
+    temperature=0,
+    sleep=1,
 ):
     client = OpenAI()
     while True:
@@ -302,11 +309,11 @@ def dialog_to_text_llama2(dialog):
 
     if dialog[0]["role"] == "system":
         dialog = [
-                     {
-                         "role": dialog[1]["role"],
-                         "content": B_SYS + dialog[0]["content"] + E_SYS + dialog[1]["content"],
-                     }
-                 ] + dialog[2:]
+            {
+                "role": dialog[1]["role"],
+                "content": B_SYS + dialog[0]["content"] + E_SYS + dialog[1]["content"],
+            }
+        ] + dialog[2:]
 
     assert all([msg["role"] == "user" for msg in dialog[::2]]) and all(
         [msg["role"] == "assistant" for msg in dialog[1::2]],
@@ -330,7 +337,7 @@ def delete_computation(text):
     while left in text and right in text:
         left_index = text.index(left)
         right_index = text.index(right)
-        text = text[:left_index] + text[right_index + 2:]
+        text = text[:left_index] + text[right_index + 2 :]
     return text
 
 
@@ -363,8 +370,8 @@ def find_num(s):
     nums_fraction = []
     pos = re.search(pattern, s)
     while pos:
-        nums.append(s[pos.start(): pos.end()])
-        s = s[: pos.start()] + " [NUM] " + s[pos.end():]
+        nums.append(s[pos.start() : pos.end()])
+        s = s[: pos.start()] + " [NUM] " + s[pos.end() :]
         pos = re.search(pattern, s)
 
     for element in nums:
