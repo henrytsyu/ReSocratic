@@ -1,5 +1,6 @@
 import argparse
 import copy
+import os
 import subprocess
 
 from colorama import Fore, Style
@@ -54,9 +55,9 @@ if __name__ == "__main__":
     load_dotenv()
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_name", type=str, default="gpt-4o")  # deepseek-v2 chat
+    parser.add_argument("--model_name", type=str, default="gpt-5.4-mini")  # deepseek-v2 chat
 
-    parser.add_argument("--data_path", type=str, default="data/OptiBench.json")
+    parser.add_argument("--data_path", type=str, default="data/optibench_nonlinear.json")
     parser.add_argument(
         "--output_path", type=str, default="eval_results/{}_fewshot.json",
     )
