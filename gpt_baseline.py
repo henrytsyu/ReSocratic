@@ -1,16 +1,11 @@
-from utils import *
-from colorama import Fore, Back, Style
-import sys
 import argparse
-from contextlib import redirect_stdout
-from io import StringIO
-import multiprocessing
-import json
-from functools import partial
 import copy
 import subprocess
-import time
-import io
+
+from colorama import Fore, Style
+from dotenv import load_dotenv
+
+from utils import *
 
 
 def run_code(code, timelimit=20):
@@ -19,7 +14,7 @@ def run_code(code, timelimit=20):
     start_time = time.time()
     try:
         output = subprocess.check_output(
-            ["python", "-c", exec_code], stderr=subprocess.STDOUT, timeout=timelimit
+            ["python", "-c", exec_code], stderr=subprocess.STDOUT, timeout=timelimit,
         )
     except subprocess.TimeoutExpired:
         return False, "The code runs over time limit."
@@ -56,15 +51,17 @@ def construct_few_shot_dialog(prompt, question):
 
 
 if __name__ == "__main__":
+    load_dotenv()
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--model_name", type=str, default="gpt-4o")  # deepseek-v2 chat
 
     parser.add_argument("--data_path", type=str, default="data/OptiBench.json")
     parser.add_argument(
-        "--output_path", type=str, default="eval_results/{}_fewshot.json"
+        "--output_path", type=str, default="eval_results/{}_fewshot.json",
     )
     parser.add_argument(
-        "--prompt_path", type=str, default="prompt/solve/scip_fewshot.txt"
+        "--prompt_path", type=str, default="prompt/solve/scip_fewshot.txt",
     )
 
     args = parser.parse_args()
@@ -98,7 +95,7 @@ if __name__ == "__main__":
         few_shot_dialog = construct_few_shot_dialog(prompt, line["question"])
         zero_shot_dialog = construct_zero_shot_dialog(line["question"])
 
-        llm_response_code = make_chat_request_hkust(
+        llm_response_code = make_chat_request_openai(
             args.model_name,
             few_shot_dialog,
             n=1,
@@ -130,8 +127,8 @@ if __name__ == "__main__":
                 {
                     "role": "assistant",
                     "content": "```python\n{}\n```".format(llm_match_response_code)
-                    + "\n\n\n```code output\n{}\n```".format(code_match_output),
-                }
+                               + "\n\n\n```code output\n{}\n```".format(code_match_output),
+                },
             )
 
             numercial_query = """Accoding to the code output, please give your final answer for the following query. (The answer should be boxed in '\\boxed{}', and only in numerical form, and round it to 5 decimal places, such as '\\boxed{27.00000}', '\\boxed{3.20000}', and '\\boxed{0.23334}')."""
@@ -141,10 +138,10 @@ if __name__ == "__main__":
                 numercial_query_k = numercial_query + "\n* " + line_query + ":"
                 zero_shot_dialog_numercial = copy.deepcopy(zero_shot_dialog)
                 zero_shot_dialog_numercial.append(
-                    {"role": "user", "content": numercial_query_k}
+                    {"role": "user", "content": numercial_query_k},
                 )
 
-                numercial_response = make_chat_request_hkust(
+                numercial_response = make_chat_request_openai(
                     args.model_name,
                     zero_shot_dialog_numercial,
                     n=1,
@@ -158,7 +155,7 @@ if __name__ == "__main__":
                     + line_query
                     + ": "
                     + numercial_response
-                    + Style.RESET_ALL
+                    + Style.RESET_ALL,
                 )
 
                 llm_results_dict[line_query] = numercial_response_answer
@@ -192,7 +189,7 @@ if __name__ == "__main__":
                 "correct": line_correct,
                 "type": line["type"],
                 "code_correct": code_correct,
-            }
+            },
         )
 
         print("-" * 40)

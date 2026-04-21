@@ -53,7 +53,7 @@ def make_chat_request_deepseek(
     if parallel:
         # Determine the number of processes based on the number of available CPU cores
         num_processes = min(
-            multiprocessing.cpu_count(), n
+            multiprocessing.cpu_count(), n,
         )  # multiprocessing.cpu_count()
 
         # Create a pool of workers
@@ -70,7 +70,7 @@ def make_chat_request_deepseek(
 
         # Use the pool to map the worker function to each line in the data
         response_list = list(
-            tqdm(workers_pool.imap(worker_partial, [messages] * n), total=n)
+            tqdm(workers_pool.imap(worker_partial, [messages] * n), total=n),
         )
 
         # Close the pool and wait for all processes to finish
@@ -106,48 +106,25 @@ def make_chat_request_deepseek(
     return response_text_list
 
 
-def make_chat_request_hkust(
-    model_name, dialogue_history, n, max_tokens=4000, stop=None, temperature=0, sleep=1
+def make_chat_request_openai(
+    model_name, dialogue_history, n, max_tokens=4000, stop=None, temperature=0, sleep=1,
 ):
-    url = "https://gpt-api.hkust-gz.edu.cn/v1/chat/completions"
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": "your key here",
-    }
-    data = {
-        "model": model_name,
-        "messages": dialogue_history,
-        "temperature": temperature,
-        "max_tokens": max_tokens,
-        "stop": stop,
-        "n": n,
-    }
-    try_use_gpt = False
-    while not try_use_gpt:
+    client = OpenAI()
+    while True:
         try:
-            response = requests.post(url, headers=headers, data=json.dumps(data))
-            # print(response)
-            # print(response.json())
-            if "error" in response.json():
-                try_use_gpt = False
-                # print("ERR| ", response)
-            else:
-                try_use_gpt = True
-                # print("YES| ", response)
+            response = client.responses.create(
+                model=model_name,
+                input=dialogue_history,
+                max_output_tokens=max_tokens,
+                temperature=temperature,
+            )
+            break
         except Exception as e:
             if "This model's maximum context length" in str(e):
                 return ["This model's maximum context length"]
             print("\r" + str(e)[:200], end="")
-            try_use_gpt = False
             time.sleep(sleep)
-    # print(dialogue_history)
-    # print(response)
-    print("\r" + 100 * " " + "\r", end="")
-    # response_list = [choice['message']['content'] for choice in response.json()['choices']]
-    response_list = [
-        choice["message"]["content"] for choice in response.json()["choices"]
-    ]
-    return response_list  # greedy
+    return [response.output_text]
 
 
 def extract_numercial_value(completion, pattern=r"-?\d+/?\.?\d*"):
@@ -325,11 +302,11 @@ def dialog_to_text_llama2(dialog):
 
     if dialog[0]["role"] == "system":
         dialog = [
-            {
-                "role": dialog[1]["role"],
-                "content": B_SYS + dialog[0]["content"] + E_SYS + dialog[1]["content"],
-            }
-        ] + dialog[2:]
+                     {
+                         "role": dialog[1]["role"],
+                         "content": B_SYS + dialog[0]["content"] + E_SYS + dialog[1]["content"],
+                     }
+                 ] + dialog[2:]
 
     assert all([msg["role"] == "user" for msg in dialog[::2]]) and all(
         [msg["role"] == "assistant" for msg in dialog[1::2]],
@@ -353,7 +330,7 @@ def delete_computation(text):
     while left in text and right in text:
         left_index = text.index(left)
         right_index = text.index(right)
-        text = text[:left_index] + text[right_index + 2 :]
+        text = text[:left_index] + text[right_index + 2:]
     return text
 
 
@@ -386,8 +363,8 @@ def find_num(s):
     nums_fraction = []
     pos = re.search(pattern, s)
     while pos:
-        nums.append(s[pos.start() : pos.end()])
-        s = s[: pos.start()] + " [NUM] " + s[pos.end() :]
+        nums.append(s[pos.start(): pos.end()])
+        s = s[: pos.start()] + " [NUM] " + s[pos.end():]
         pos = re.search(pattern, s)
 
     for element in nums:
