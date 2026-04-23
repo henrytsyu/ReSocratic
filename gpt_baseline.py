@@ -58,11 +58,11 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--model_name", type=str, default="gpt-5.4-mini"
+        "--model_name", type=str, default="gpt-5.4",
     )  # deepseek-v2 chat
 
     parser.add_argument(
-        "--data_path", type=str, default="data/optibench_nonlinear.json"
+        "--data_path", type=str, default="data/optibench_nonlinear.json",
     )
     parser.add_argument(
         "--output_path",
@@ -138,7 +138,7 @@ if __name__ == "__main__":
                 {
                     "role": "assistant",
                     "content": "```python\n{}\n```".format(llm_match_response_code)
-                    + "\n\n\n```code output\n{}\n```".format(code_match_output),
+                               + "\n\n\n```code output\n{}\n```".format(code_match_output),
                 },
             )
 
